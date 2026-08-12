@@ -46,7 +46,18 @@ def tambah_barang():
     hasil = infentori(nama_barang=b, harga=h, jumlah_barang= j)
     db.session.add(hasil)
     db.session.commit()
-    return jsonify(f"barang berhasil disimpan")
+    return jsonify({'masage': 'data berhasil di tambah'})
+
+@app.route('/edit/data/<int:target_id>', methods=['PATCH'])
+def edit_barang(target_id):
+    target = infentori.query.get(target_id)
+    data = request.get_json()
+    target.nama_barang = data.get('nama_barang', target.nama_barang)
+    target.harga = data.get('harga', target.harga)
+    target.jumlah_barang = data.get('jumlah_barang', target.jumlah_barang)
+    db.session.commit()
+    return jsonify({'masage': 'barang berhasil di edit'})
+
 
 
 
