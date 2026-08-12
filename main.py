@@ -6,6 +6,7 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 load_dotenv()
+
 app = Flask(__name__)
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
@@ -19,7 +20,10 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 db = SQLAlchemy()
 migrate = Migrate(app, db)
 
-class Barang(db.Model):
+
+# tabel barang
+class infentori(db.Model):
+    __tablename__ = 'infentori'
     id = db.Column(db.Integer, primary_key=True)
     nama_barang = db.Column(db.String(100), nullable=False)
     harga = db.Column(db.Integer, nullable=False)
@@ -33,7 +37,21 @@ with app.app_context():
     db.create_all()
     print("berhasil membuat table")
 
+@app.route('/tambah', methods=['POST'])
+def tambah_barang():
+    data = request.get_json()
+    b = data['nama_barang']
+    h = data['harga']
+    j = data['jumlah_barang']
+    hasil = infentori(nama_barang=b, harga=h, jumlah_barang= j)
+    db.session.add(hasil)
+    db.session.commit()
+    return jsonify(f"barang berhasil disimpan")
 
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
 
