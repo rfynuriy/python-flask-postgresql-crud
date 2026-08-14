@@ -58,6 +58,12 @@ def edit_barang(target_id):
     db.session.commit()
     return jsonify({'masage': 'barang berhasil di edit'})
 
+@app.route('/hapus/<int:target_id>', methods=['DELETE'])
+def hapus_data(target_id):
+    target = infentori.query.get(target_id)
+    db.session.delete(target)
+    db.session.commit()
+    return jsonify({'masage': 'data berhasil dihapus'})
 
 
 
