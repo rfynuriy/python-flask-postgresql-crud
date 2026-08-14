@@ -1,13 +1,14 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-import pandas as pd
 
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+app.json.sort_keys = False #menghapus output urutan json dari flask
+
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
@@ -51,6 +52,8 @@ def tambah_barang():
 @app.route('/edit/data/<int:target_id>', methods=['PATCH'])
 def edit_barang(target_id):
     target = infentori.query.get(target_id)
+    if not target:
+        return jsonify("id yang dituju tidak ditemukan")
     data = request.get_json()
     target.nama_barang = data.get('nama_barang', target.nama_barang)
     target.harga = data.get('harga', target.harga)
@@ -58,12 +61,47 @@ def edit_barang(target_id):
     db.session.commit()
     return jsonify({'masage': 'barang berhasil di edit'})
 
-@app.route('/hapus/<int:target_id>', methods=['DELETE'])
-def hapus_data(target_id):
-    target = infentori.query.get(target_id)
-    db.session.delete(target)
+@app.route('/hapus', methods=['DELETE'])
+def hapus_data():
+    hapus_id = request.args.get('id', type=int)
+    if hapus_id is not None:
+        target = infentori.query.get(hapus_id)
+        if target is None:
+            return jsonify("id yang dituju tidak ditemukan")
+        db.session.delete(target)
+        db.session.commit()
+        return jsonify({'masage': 'data berhasil dihapus'})
+    infentori.query.delete()
     db.session.commit()
-    return jsonify({'masage': 'data berhasil dihapus'})
+    return jsonify({'masage': 'semua data berhasil dihapus'})
+
+
+@app.route('/lihat_data', methods=['GET'])
+def lihat():
+    data_spesifik = request.args.get('id', type=int)
+    if data_spesifik is not None:
+        target = infentori.query.get(data_spesifik)
+        if target is None:
+            return jsonify("id yang dituju tidak ditemukan")
+
+        hasil = ({
+            "id": target.id,
+            "nama_barang": target.nama_barang,
+            "harga": target.harga,
+            "jumlah_barang": target.jumlah_barang
+        })
+        return jsonify(hasil)
+
+    data = infentori.query.order_by(infentori.id).all()
+    hasil = []
+    for i in data:
+        hasil.append({
+            "id": i.id,
+            "nama_barang": i.nama_barang,
+            "harga": i.harga,
+            "jumlah_barang": i.jumlah_barang
+            })
+    return jsonify(hasil)
 
 
 
