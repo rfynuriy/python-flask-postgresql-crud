@@ -30,6 +30,12 @@ class infentori(db.Model):
     harga = db.Column(db.Integer, nullable=False)
     jumlah_barang = db.Column(db.Integer, nullable=False )
 
+class user(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    user_name = db.Column(db.String(100), nullable=False, unique=True)
+    password = db.Column(db.String(500), nullable=False)
+
 #menyatukan db dan app
 db.init_app(app)
 
