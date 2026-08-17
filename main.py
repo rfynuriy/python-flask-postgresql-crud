@@ -32,7 +32,7 @@ class infentori(db.Model):
     jumlah_barang = db.Column(db.Integer, nullable=False )
 
 # tabel user
-class user(db.Model):
+class users(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(100), nullable=False, unique=True)
@@ -113,11 +113,21 @@ def lihat():
             })
     return jsonify(hasil)
 
+#register users
+@app.route('/register', methods=['POST'])
+def register():
+    data= request.get_json()
+    u= data['user_name']
+    p= data['password']
+    pw_hashed = bcrypt.generate_password_hash(p).decode('utf-8')
+    hasil =  users(user_name=u, password=pw_hashed)
+    db.session.add(hasil)
+    db.session.commit()
+    return jsonify({'massage': 'data user berhasil ditambah'})
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-
 
 
 
