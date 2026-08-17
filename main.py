@@ -1,13 +1,14 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
 app.json.sort_keys = False #menghapus output urutan json dari flask
+bcrypt = Bcrypt(app)
 
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
@@ -30,8 +31,9 @@ class infentori(db.Model):
     harga = db.Column(db.Integer, nullable=False)
     jumlah_barang = db.Column(db.Integer, nullable=False )
 
+# tabel user
 class user(db.Model):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(500), nullable=False)
@@ -40,10 +42,12 @@ class user(db.Model):
 db.init_app(app)
 
 #buat tabel
-with app.app_context():
-    db.create_all()
-    print("berhasil membuat table")
+#with app.app_context():
+#    db.create_all()
+#    print("berhasil membuat table")
 
+
+#     crud     #
 @app.route('/tambah', methods=['POST'])
 def tambah_barang():
     data = request.get_json()
