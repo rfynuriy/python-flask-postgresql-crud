@@ -125,6 +125,19 @@ def register():
     db.session.commit()
     return jsonify({'massage': 'data user berhasil ditambah'})
 
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    u = data['user_name']
+    p = data['password']
+
+    user = users.query.filter_by(user_name=u).first()
+    if not user:
+        return jsonify({'massage': 'user tidak ditemukan'})
+    if bcrypt.check_password_hash(user.password, p):
+        return jsonify("login berhasil")
+    else:
+        return jsonify("password salah")
 
 if __name__ == '__main__':
     app.run(debug=True)
